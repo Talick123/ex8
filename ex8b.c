@@ -9,18 +9,20 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <stdbool.h>
+#include <semaphore.h>
+#include <fcntl.h>
+#include <time.h>
 
 // --------const and enum section------------------------
 
 #define ARR_SIZE 50000
 #define SEED 17
-#define LOCK 0
-#define START 1
 
 // --------const and enum section------------------------
 
 int arr[ARR_SIZE];
-enum Lock {LOCKED, UNLOCKED};
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_once_t threads_init = PTHREAD_ONCE_INIT;
 
 // --------prototype section------------------------
 
@@ -31,6 +33,7 @@ bool prime(int num);
 int count_appearances(int curr_ind);
 void print_thread_data(int new_count, int max, int max_prime);
 void read_and_print_data();
+void print_dont(void);
 void perror_and_exit(char *msg);
 
 // --------main section------------------------
@@ -39,8 +42,6 @@ int main()
 {
     srand(SEED);
     reset_arr();
-    arr[LOCK] = LOCKED;
-
     create_threads_and_wait();
     read_and_print_data();
 
@@ -81,6 +82,7 @@ void create_threads_and_wait()
     pthread_join(thread1, NULL); //waiting for thread
     pthread_join(thread2, NULL);
     pthread_join(thread3, NULL);
+    pthread_mutex_destroy(&mutex);
 }
 
 //-------------------------------------------------
@@ -90,6 +92,8 @@ void *fill_arr(void *arg)
     int num, index, max, max_prime, new_count, other;
     max = max_prime = new_count = 0;
     index = START;
+
+
 
     while(true)
     {
@@ -103,17 +107,14 @@ void *fill_arr(void *arg)
 				max++;
 			}
 
-            while(arr[LOCK] == LOCKED)
-                sleep(1);
-
-            arr[LOCK] = LOCKED;
+            p_thread_mutex_lock(&mutex);
 
             while(arr[index] != 0 && index < ARR_SIZE)
                 index++;
 
             if(index >= ARR_SIZE)
             {
-                arr[LOCK] = UNLOCKED; //gives other threads chance to see its full
+                pthread_once(&threads_init, print_done);
                 print_thread_data(new_count, max, max_prime);
                 pthread_exit(NULL);
             }
@@ -129,7 +130,8 @@ void *fill_arr(void *arg)
                 max = other + 1;
                 max_prime = num;
             }
-            arr[LOCK] = UNLOCKED;
+
+            pthread_mutex_unlock(&mutex);
         }
     }
 }
@@ -139,10 +141,11 @@ void *fill_arr(void *arg)
 //check is prime
 bool prime(int num)
 {
-	if(num < 2)
-		return false;
+    int i;
 
-	int i;
+    if(num < 2)
+    return false;
+
 	for(i = 2; i*i <= num; i++)
 		if(num % i == 0)
 			return false;
@@ -190,6 +193,13 @@ void read_and_print_data()
     }
     printf("The number of different primes received is: %d\n", counter);
 	printf("The max prime is: %d. The min prime is: %d\n", max, min);
+}
+
+//-------------------------------------------------
+
+void print_done(void)
+{
+    puts("Done!\n");
 }
 
 //-------------------------------------------------

@@ -123,6 +123,7 @@ void fill_arr(int *shm_ptr, sem_t *mutex)
             if(index >= ARR_SIZE)
             {
                 kill(shm_ptr[0], SIGUSR1);
+                //sem_post(mutex); //so that others can see??????????
                 break;
             }
 
