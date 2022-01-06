@@ -12,10 +12,12 @@
 #include <semaphore.h>
 #include <fcntl.h>
 #include <time.h>
+#include <pthread.h>
 
 // --------const and enum section------------------------
 
 #define ARR_SIZE 50000
+#define START 0
 #define SEED 17
 
 // --------const and enum section------------------------
@@ -33,7 +35,7 @@ bool prime(int num);
 int count_appearances(int curr_ind);
 void print_thread_data(int new_count, int max, int max_prime);
 void read_and_print_data();
-void print_dont(void);
+void print_done(void);
 void perror_and_exit(char *msg);
 
 // --------main section------------------------
@@ -77,7 +79,7 @@ void create_threads_and_wait()
     if(status != 0)
         perror_and_exit("p_thread_create\n");
 
-	arr[LOCK] = UNLOCKED;
+	//arr[LOCK] = UNLOCKED;
 
     pthread_join(thread1, NULL); //waiting for thread
     pthread_join(thread2, NULL);
@@ -107,7 +109,7 @@ void *fill_arr(void *arg)
 				max++;
 			}
 
-            p_thread_mutex_lock(&mutex);
+            pthread_mutex_lock(&mutex);
 
             while(arr[index] != 0 && index < ARR_SIZE)
                 index++;
@@ -125,7 +127,7 @@ void *fill_arr(void *arg)
 
             if(other == 0)
                 new_count++;
-            else if(max <= other);
+            else if(max <= other)
             {
                 max = other + 1;
                 max_prime = num;
@@ -170,7 +172,7 @@ int count_appearances(int curr_ind)
 void print_thread_data(int new_count, int max, int max_prime)
 {
     printf("Thread %d sent %d different new primes.\n",
-        pthread_self(), new_count);
+        (int)pthread_self(), new_count);
 
     printf("The prime it sent most was %d, %d times. \n",
         	   max_prime, max);
