@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     check_argv(argc);
     srand(atoi(argv[1]));
 
-    semt_t* mutex; //global?
+    sem_t* mutex; //global?
 
     mutex = sem_open("/semaphore", O_CREAT, 0644, 1);
     if(mutex == SEM_FAILED)
@@ -129,11 +129,11 @@ void fill_arr(int *shm_ptr, sem_t *mutex)
 
             shm_ptr[index] = num;
 
-            other = count_appearances(index);
+            other = count_appearances(shm_ptr, index);
 
             if(other == 0)
                 new_count++;
-            else if(max <= other);
+            else if(max <= other)
             {
                 max = other + 1;
                 max_prime = num;
@@ -167,7 +167,7 @@ bool prime(int num)
 
 //-------------------------------------------------
 
-int count_appearances(int *shm_ptr,int curr_ind)
+int count_appearances(int *shm_ptr, int curr_ind)
 {
     int counter = 0, index;
 
