@@ -116,6 +116,7 @@ void *fill_arr(void *arg)
 
             if(index >= ARR_SIZE)
             {
+				pthread_mutex_unlock(&mutex);
                 pthread_once(&threads_init, print_done);
                 print_thread_data(new_count, max, max_prime);
                 pthread_exit(NULL);
