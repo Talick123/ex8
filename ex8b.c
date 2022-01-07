@@ -1,3 +1,40 @@
+/*
+
+File: ex8b.c
+Generate and Collect Primes from Shared Memory using Threads and Semaphore
+=====================================================================
+Written by: Tali Kalev, ID:208629691, Login: talikal
+		and	Noga Levy, ID:315260927, Login: levyno
+
+This program creates three threads that generates random numbers. When the number
+is prime the thread adds the number to shared memory created by the main thread
+using semaphore to make sure to "lock" the other threads out. When the threads
+see that the shared memory is full, it prints how many new primes it sent and
+the prime it sent most and ends. When all the threads are finished, the main
+process prints how many different numbers are in the shared memory, the smallest
+number and the biggest number.
+
+Compile: gcc ex8b.c -o ex8b -lpthread
+
+Run:    ./ex8b
+
+Input: No Input
+
+Output: From threads = prime number they send the most to shared memory and how
+        many new ones they sent.
+        From main thread = minimum prime, max prime and number of
+        different numbers in the shared memory.
+    Example: Thread -1711933696 sent 3488 different new primes.
+             The prime it sent most was 1117382491, 1 times.
+             Thread -1695148288 sent 39454 different new primes.
+             The prime it sent most was 153105023, 1 times.
+             Thread -1703540992 sent 7046 different new primes.
+             The prime it sent most was 1092866087, 1 times.
+             The number of different primes received is: 49987
+             The max prime is: 2147429173. The min prime is: 22091
+
+*/
+
 // --------include section------------------------
 
 #include <signal.h>

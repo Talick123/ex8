@@ -1,4 +1,42 @@
+/*
+File: ex8a1.c ex8a2.c
+Generate and Collect Primes from Shared Memory using Processes and Semaphore
+=====================================================================
+Written by: Tali Kalev, ID:208629691, Login: talikal
+		and	Noga Levy, ID:315260927, Login: levyno
 
+This program runs with 4 different processes. Three processes that generates
+random numbers, when the number is prime the process sends it to adds to shared
+memory while using semaphore to "lock" the other processes out.
+When the filling processes sees that the shared memory is full, it sends signal to
+main process, prints out data and ends. The main process wakes, counts how many
+different primes are in shared memory, finds the smallest and biggest number,
+prints, closes shared memory and ends.
+
+Compile: gcc ex8a1.c -o ex8a1 -lpthread
+         gcc ex8a2.c -o ex8a2 -lpthread
+     (ex8a1 = main process, ex8a2 = sub process)
+
+Run: for start run the main process.
+    Then, run 3 times the sub processes and send to the vector
+    arguments the number of process (1-3):
+        ./ex8a1
+        ./ex8a2 1
+        ./ex8a2 2
+        ./ex8a2 3
+
+Input: No Input
+
+Output:
+    From main process (ex8a1) = minimum prime, max prime and number of
+    different numbers in the array.
+    Example: The number of different primes received is: 49987
+             The max prime is: 2147429173. The min prime is: 22091
+    From sub process (ex8a2) = prime number they send the most to main process
+    Example: Process 1101373 sent 3488 different new primes.
+             The prime it sent most was 1117382491, 1 times.
+
+*/
 // --------include section------------------------
 
 
