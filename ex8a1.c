@@ -91,7 +91,7 @@ int main()
 
 //-------------------------------------------------
 
-void catch_sig1(int signum){}
+void catch_sig1(int signum) {}
 
 //-------------------------------------------------
 
@@ -122,7 +122,9 @@ void init_data(int *shm_ptr)
     shm_ptr[0] = getpid();
 
     for(index = 1; index < ARR_SIZE; index++)
-        shm_ptr[index] = 0;
+    {
+	    shm_ptr[index] = 0;
+	}
 }
 
 //-------------------------------------------------
@@ -163,6 +165,7 @@ bool new_in_shm(int prime, int curr_ind, int *shm_ptr)
 
 void close_shared_mem(int *shm_id, int *shm_ptr)
 {
+
 	shmdt(shm_ptr);
 
     if(shmctl(*shm_id, IPC_RMID, NULL) == -1)

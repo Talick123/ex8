@@ -70,12 +70,14 @@ bool prime(int num);
 int count_appearances(int *shm_ptr,int curr_ind);
 void print_data(int new_count,int max,int max_prime);
 void perrorandexit(char *msg);
+void catch_sig2(int signum);
 
 // --------main section------------------------
 
 int main(int argc, char *argv[])
 {
     int *shm_ptr;
+    signal(SIGUSR2, catch_sig2);
 
     check_argv(argc);
     srand(atoi(argv[1]));
@@ -84,8 +86,9 @@ int main(int argc, char *argv[])
 
     mutex = sem_open("/semaphore", O_CREAT, 0644, 1);
     if(mutex == SEM_FAILED)
+	{
         perrorandexit("parent sem_open failed\n");
-
+	}
 
     connect_to_shared_mem(&shm_ptr);
     init_and_wait(shm_ptr, atoi(argv[1]));
@@ -103,6 +106,12 @@ void check_argv(int argc)
 }
 
 //-------------------------------------------------
+void catch_sig2(int signum)
+{
+	exit(EXIT_SUCCESS);
+}
+
+//-------------------------------------------------
 
 void connect_to_shared_mem(int **shm_ptr)
 {
@@ -111,10 +120,14 @@ void connect_to_shared_mem(int **shm_ptr)
 
     key = ftok(".", '8');
     if(key == -1)
+	{
         perrorandexit("ftok failed");
+	}
 
     if((shm_id = shmget(key, ARR_SIZE, 0600)) == -1)
+	{
         perrorandexit("shmget failed");
+	}
 
     *shm_ptr = (int*)shmat(shm_id, NULL, 0);
     if (!(*shm_ptr))
@@ -130,7 +143,8 @@ void init_and_wait(int *shm_ptr, int id)
     shm_ptr[id] = 1;
 
     while((shm_ptr[1] == 0) || (shm_ptr[2] == 0) || (shm_ptr[3] == 0))
-        sleep(0.1);
+        {sleep(0.1);}
+
 }
 
 //-------------------------------------------------
@@ -140,6 +154,7 @@ void fill_arr(int *shm_ptr, sem_t *mutex)
     int num, index, max, max_prime, new_count, other;
     max = max_prime = new_count = 0;
     index = START;
+
 
     while(true)
     {
@@ -161,7 +176,8 @@ void fill_arr(int *shm_ptr, sem_t *mutex)
             if(index >= ARR_SIZE)
             {
                 kill(shm_ptr[0], SIGUSR1);
-                //sem_post(mutex); //so that others can see??????????
+				sem_post(mutex);
+
                 break;
             }
 
@@ -178,7 +194,7 @@ void fill_arr(int *shm_ptr, sem_t *mutex)
             }
 
             sem_post(mutex);
-            sleep(1);
+
         }
     }
     sem_close(mutex);
